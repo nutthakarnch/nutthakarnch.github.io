@@ -25,76 +25,72 @@
     <table>
         <thead>
             <tr>
-                <th colspan="2">input field type number</th>
-                <th colspan="2">calculated output label</th>
-                <th rowspan="2">Static label</th>
+                <th colspan="2">Input Fields</th>
+                <th colspan="2">Calculated Modifications</th>
             </tr>
             <tr>
                 <th>Actual</th>
                 <th>Shift</th>
-                <th>Modification</th>
+                <th>Modifications</th>
                 <th>Direction</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <!-- Rows will be added dynamically -->
+            <tr>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td class="modification">0</td>
+                <td>in</td>
+            </tr>
+            <tr>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td class="modification">0</td>
+                <td>out</td>
+            </tr>
+            <tr>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td class="modification">0</td>
+                <td>down</td>
+            </tr>
+            <tr>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td class="modification">0</td>
+                <td>up</td>
+            </tr>
+            <tr>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td class="modification">0</td>
+                <td>right</td>
+            </tr>
+            <tr>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td><input type="number" value="0" oninput="updateModification(this)"></td>
+                <td class="modification">0</td>
+                <td>left</td>
+            </tr>
         </tbody>
     </table>
 
     <script>
-        const data = [
-            { actual: 54, shift: 76, direction: 'in' },
-            { actual: 6, shift: 1, direction: 'out' },
-            { actual: 48, shift: 50, direction: 'down' },
-            { actual: 12, shift: 92, direction: 'up' },
-            { actual: 79, shift: 96, direction: 'right' },
-            { actual: 37, shift: 51, direction: 'left' }
-        ];
-
-        function calculateModification(actual, shift) {
-            return actual + shift;
+        function updateModification(inputElement) {
+            const row = inputElement.parentElement.parentElement;
+            const actual = Number(row.cells[0].firstChild.value);
+            const shift = Number(row.cells[1].firstChild.value);
+            const direction = row.cells[3].innerText;
+            row.cells[2].innerText = calculateModification(actual, shift, direction);
         }
 
-        function createRow(data) {
-            const row = document.createElement('tr');
-            const actualCell = document.createElement('td');
-            const shiftCell = document.createElement('td');
-            const modificationCell = document.createElement('td');
-            const directionCell = document.createElement('td');
-
-            const actualInput = document.createElement('input');
-            actualInput.type = 'number';
-            actualInput.value = data.actual;
-            actualInput.addEventListener('input', () => updateModification(row));
-
-            const shiftInput = document.createElement('input');
-            shiftInput.type = 'number';
-            shiftInput.value = data.shift;
-            shiftInput.addEventListener('input', () => updateModification(row));
-
-            actualCell.appendChild(actualInput);
-            shiftCell.appendChild(shiftInput);
-            modificationCell.innerText = calculateModification(data.actual, data.shift);
-            directionCell.innerText = data.direction;
-
-            row.appendChild(actualCell);
-            row.appendChild(shiftCell);
-            row.appendChild(modificationCell);
-            row.appendChild(directionCell);
-            return row;
+        function calculateModification(actual, shift, direction) {
+            if (direction === 'in' || direction === 'down' || direction === 'right') {
+                return actual + shift;
+            } else if (direction === 'out' || direction === 'up' || direction === 'left') {
+                return actual - shift;
+            }
         }
-
-        function updateModification(row) {
-            const actual = row.cells[0].firstChild.value;
-            const shift = row.cells[1].firstChild.value;
-            row.cells[2].innerText = calculateModification(Number(actual), Number(shift));
-        }
-
-        const tableBody = document.getElementById('tableBody');
-        data.forEach(item => {
-            const row = createRow(item);
-            tableBody.appendChild(row);
-        });
     </script>
 </body>
 </html>
