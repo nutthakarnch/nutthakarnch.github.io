@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,21 +10,29 @@
             width: 100%;
             border-collapse: collapse;
         }
-        table, th, td {
+
+        table,
+        th,
+        td {
             border: 1px solid black;
         }
-        th, td {
+
+        th,
+        td {
             padding: 8px;
             text-align: center;
         }
+
         input[type="number"] {
             width: -webkit-fill-available;
         }
+
         .narrow-column {
             width: 50px;
         }
     </style>
 </head>
+
 <body>
     <table>
         <thead>
@@ -85,6 +94,7 @@
             const shift = Number(row.cells[1].firstChild.value);
             const direction = row.cells[3].innerText;
             row.cells[2].innerText = calculateModification(actual, shift, direction);
+            saveValuesToCookie();
         }
 
         function calculateModification(actual, shift, direction) {
@@ -96,6 +106,61 @@
             }
             return result.toFixed(2);
         }
+
+        function saveValuesToCookie() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach((row, index) => {
+                const actual = row.cells[0].firstChild.value;
+                const shift = row.cells[1].firstChild.value;
+                let next2Days = new Date();
+                // next2Days.setDate(next2Days.getDate() + 2);
+                // let expires = "expires=" + next2Days.toUTCString();
+                setCookie(`row${index}actual`, actual, 2);
+                setCookie(`row${index}shift`, shift, 2);
+            });
+        }
+
+        function loadValuesFromCookie() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach((row, index) => {
+                const actual = getCookie(`row${index}actual`);
+                const shift = getCookie(`row${index}shift`);
+                // console.log({ row, index, actual, shift })
+                if (actual !== "") row.cells[0].firstChild.value = actual;
+                if (shift !== "") row.cells[1].firstChild.value = shift;
+                updateModification(row.cells[0].firstChild);
+            });
+        }
+
+        function setCookie(cname, cvalue, exdays) {
+            const d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            let cookie = cname + "=" + cvalue + ";" + expires + ";path=/"
+            // document.cookie = cookie;
+            // console.log({ cookie, "document.cookie": document.cookie })
+        }
+        function getCookie(cname) {
+            const name = cname + "=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            // console.log("getcookie", cname, decodedCookie, ca)
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        window.onload = function () {
+            loadValuesFromCookie();
+        };
     </script>
 </body>
+
 </html>
