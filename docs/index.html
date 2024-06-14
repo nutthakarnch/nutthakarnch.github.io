@@ -122,7 +122,10 @@
 
         function clearAll() {
             const inputs = document.querySelectorAll('input[type=number]');
-            inputs.forEach((input) => input.value = "")
+            inputs.forEach((input) => {
+                input.value = "";
+                updateModification(input);
+            })
         }
 
         function updateModification(inputElement) {
