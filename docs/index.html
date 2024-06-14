@@ -127,14 +127,15 @@
 
         function updateModification(inputElement) {
             const row = inputElement.parentElement.parentElement;
-            const actual = Number(row.cells[0].firstChild.value);
-            const shift = Number(row.cells[1].firstChild.value);
             const direction = row.cells[3].innerText;
+            const actual = Number(row.querySelector(`[name="${direction}Actual"]`).value);
+            const shift = Number(row.querySelector(`[name="${direction}Shift"]`).value);
             row.cells[2].innerText = calculateModification(actual, shift, direction);
             setCookie(inputElement.name, inputElement.value, 1);
         }
 
         function calculateModification(actual, shift, direction) {
+            // console.log({ actual, shift, direction });
             let result;
             if (direction === 'in' || direction === 'down' || direction === 'right') {
                 result = parseFloat(actual) + parseFloat(shift);
