@@ -5,32 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Table with Calculations</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid black;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: center;
-        }
-
-        input[type="number"] {
-            width: -webkit-fill-available;
-        }
-
-        .narrow-column {
-            width: 50px;
-        }
-    </style>
+    <link rel="stylesheet" href="/web/resources/styles.css">
+    <script src="/web/resources/cookies.js"></script>
 </head>
 
 <body>
@@ -56,7 +32,7 @@
                     <input type="number" min="-100" max="1000" oninput="updateModification(this)" name="inShift">
                 </td>
                 <td class="modification">0.00</td>
-                <td>in</td>
+                <td class="direction">in</td>
             </tr>
             <tr>
                 <td>
@@ -66,7 +42,7 @@
                     <input type="number" min="-100" max="1000" oninput="updateModification(this)" name="outShift">
                 </td>
                 <td class="modification">0.00</td>
-                <td>out</td>
+                <td class="direction">out</td>
             </tr>
             <tr>
                 <td>
@@ -76,7 +52,7 @@
                     <input type="number" min="-100" max="1000" oninput="updateModification(this)" name="downShift">
                 </td>
                 <td class="modification">0.00</td>
-                <td>down</td>
+                <td class="direction">down</td>
             </tr>
             <tr>
                 <td>
@@ -86,7 +62,7 @@
                     <input type="number" min="-100" max="1000" oninput="updateModification(this)" name="upShift">
                 </td>
                 <td class="modification">0.00</td>
-                <td>up</td>
+                <td class="direction">up</td>
             </tr>
             <tr>
                 <td>
@@ -96,7 +72,7 @@
                     <input type="number" min="-100" max="1000" oninput="updateModification(this)" name="rightShift">
                 </td>
                 <td class="modification">0.00</td>
-                <td>right</td>
+                <td class="direction">right</td>
             </tr>
             <tr>
                 <td>
@@ -106,7 +82,7 @@
                     <input type="number" min="-100" max="1000" oninput="updateModification(this)" name="leftShift">
                 </td>
                 <td class="modification">0.00</td>
-                <td>left</td>
+                <td class="direction">left</td>
             </tr>
             <tr>
                 <td colspan="4">
@@ -130,7 +106,7 @@
 
         function updateModification(inputElement) {
             const row = inputElement.parentElement.parentElement;
-            const direction = row.cells[3].innerText;
+            const direction = row.querySelector(`.direction`).innerText;
             const actual = Number(row.querySelector(`[name="${direction}Actual"]`).value);
             const shift = Number(row.querySelector(`[name="${direction}Shift"]`).value);
             row.cells[2].innerText = calculateModification(actual, shift, direction);
@@ -158,29 +134,6 @@
                     updateModification(input);
                 }
             })
-        }
-        function setCookie(cname, cvalue, exdays) {
-            const d = new Date();
-            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-            let expires = "expires=" + d.toUTCString();
-            let cookie = cname + "=" + cvalue + ";" + expires + ";path=/"
-            document.cookie = cookie;
-            // console.log(`Cookie set: ${cname}=${cvalue}; ${expires}; path=/`);
-        }
-        function getCookie(cname) {
-            const name = cname + "=";
-            const decodedCookie = decodeURIComponent(document.cookie);
-            const ca = decodedCookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
         }
 
         window.onload = function () {
