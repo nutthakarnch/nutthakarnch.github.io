@@ -108,10 +108,23 @@
                 <td class="modification">0.00</td>
                 <td>left</td>
             </tr>
+            <tr>
+                <td colspan="4">
+                    <input type="button" value="Clear all" onclick="clearAll()" />
+                </td>
+            </tr>
         </tbody>
     </table>
 
+
+
     <script>
+
+        function clearAll() {
+            const inputs = document.querySelectorAll('input[type=number]');
+            inputs.forEach((input) => input.value = "")
+        }
+
         function updateModification(inputElement) {
             const row = inputElement.parentElement.parentElement;
             const actual = Number(row.cells[0].firstChild.value);
@@ -124,9 +137,9 @@
         function calculateModification(actual, shift, direction) {
             let result;
             if (direction === 'in' || direction === 'down' || direction === 'right') {
-                result = actual + shift;
+                result = parseFloat(actual) + parseFloat(shift);
             } else if (direction === 'out' || direction === 'up' || direction === 'left') {
-                result = actual - shift;
+                result = parseFloat(actual) - parseFloat(shift);
             }
             return result.toFixed(2);
         }
@@ -136,9 +149,10 @@
             const inputs = document.querySelectorAll('input');
             inputs.forEach((input) => {
                 const val = getCookie(`${input.name}`);
-                console.log({ "input": input.name, val })
-                if (val !== "") input.value = val;
-                updateModification(input);
+                if (val !== "") {
+                    input.value = val;
+                    updateModification(input);
+                }
             })
         }
         function setCookie(cname, cvalue, exdays) {
