@@ -1,24 +1,86 @@
+/* Reset some default styles */
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, table {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    padding: 20px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-table,
-th,
-td {
-    border: 1px solid black;
+thead {
+    background-color: #007bff;
+    color: #fff;
 }
 
-th,
-td {
-    padding: 8px;
+th, td {
+    padding: 12px;
     text-align: center;
+    border-bottom: 1px solid #dee2e6;
+}
+
+th {
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background-color: #f1f1f1;
 }
 
 input[type="number"] {
-    width: -webkit-fill-available;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+    color: #495057;
+}
+
+input[type="button"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="button"]:hover {
+    background-color: #218838;
 }
 
 .narrow-column {
-    width: 50px;
+    width: 80px;
+}
+
+@media (max-width: 768px) {
+    table, th, td {
+        display: block;
+        width: 100%;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    .narrow-column {
+        width: auto;
+    }
 }

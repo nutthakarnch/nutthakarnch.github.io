@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <h1>Table with Calculations</h1>
     <table>
         <thead>
             <tr>
@@ -92,16 +93,13 @@
         </tbody>
     </table>
 
-
-
     <script>
-
         function clearAll() {
             const inputs = document.querySelectorAll('input[type=number]');
             inputs.forEach((input) => {
                 input.value = "";
                 updateModification(input);
-            })
+            });
         }
 
         function updateModification(inputElement) {
@@ -133,7 +131,7 @@
                     input.value = val;
                     updateModification(input);
                 }
-            })
+            });
         }
 
         window.onload = function () {
