@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>คำนวณระยะเวลาคืนทุนของเครื่องชงกาแฟ</title>
+    <style>
+        table {
+            width: 50%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+    <script>
+        function calculate() {
+            const machinePrice = parseFloat(document.getElementById('machinePrice').value) || 0;
+            const additionalCost = parseFloat(document.getElementById('additionalCost').value) || 0;
+            const coffeeWeight = parseFloat(document.getElementById('coffeeWeight').value) || 0;
+            const coffeePrice = parseFloat(document.getElementById('coffeePrice').value) || 0;
+            const coffeePerCup = parseFloat(document.getElementById('coffeePerCup').value) || 0;
+            const milkCostPerCup = parseFloat(document.getElementById('milkCostPerCup').value) || 0;
+            const sugarCostPerCup = parseFloat(document.getElementById('sugarCostPerCup').value) || 0;
+            const cupCostPerCup = parseFloat(document.getElementById('cupCostPerCup').value) || 0;
+            const strawCostPerCup = parseFloat(document.getElementById('strawCostPerCup').value) || 0;
+            const coffeePricePerCup = parseFloat(document.getElementById('coffeePricePerCup').value) || 0;
+            const cupsPerDay = parseInt(document.getElementById('cupsPerDay').value) || 0;
+
+            const coffeeCostPerGram = coffeePrice / coffeeWeight;
+            const coffeeCostPerCup = coffeeCostPerGram * coffeePerCup;
+
+            const totalCost = machinePrice + additionalCost;
+            const totalCostPerCup = coffeeCostPerCup + milkCostPerCup + sugarCostPerCup + cupCostPerCup + strawCostPerCup;
+            const savingPerCup = coffeePricePerCup - totalCostPerCup;
+            const savingPerDay = savingPerCup * cupsPerDay;
+            const paybackPeriod = totalCost / savingPerDay;
+
+            document.getElementById('totalCost').innerText = totalCost.toFixed(2);
+            document.getElementById('coffeeCostPerCup').innerText = coffeeCostPerCup.toFixed(2);
+            document.getElementById('totalCostPerCup').innerText = totalCostPerCup.toFixed(2);
+            document.getElementById('savingPerCup').innerText = savingPerCup.toFixed(2);
+            document.getElementById('savingPerDay').innerText = savingPerDay.toFixed(2);
+            document.getElementById('paybackPeriod').innerText = isFinite(paybackPeriod) ? paybackPeriod.toFixed(2) : 'N/A';
+        }
+    </script>
+</head>
+<body>
+    <h1>คำนวณระยะเวลาคืนทุนของเครื่องชงกาแฟ</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>รายการ</th>
+                <th>ค่า (บาท)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>ราคาของเครื่องชงกาแฟ</td>
+                <td><input type="number" id="machinePrice" value="15000" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td>ค่าใช้จ่ายเพิ่มเติม</td>
+                <td><input type="number" id="additionalCost" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td><strong>ต้นทุนทั้งหมด</strong></td>
+                <td><strong id="totalCost">15000.00</strong></td>
+            </tr>
+            <tr>
+                <td>น้ำหนักเมล็ดกาแฟ (กรัม)</td>
+                <td><input type="number" id="coffeeWeight" value="250" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td>ราคาเมล็ดกาแฟ</td>
+                <td><input type="number" id="coffeePrice" value="200" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td>น้ำหนักกาแฟต่อแก้ว (กรัม)</td>
+                <td><input type="number" id="coffeePerCup" value="10" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td><strong>ต้นทุนเมล็ดกาแฟต่อแก้ว</strong></td>
+                <td><strong id="coffeeCostPerCup">8.00</strong></td>
+            </tr>
+            <tr>
+                <td>ค่านมต่อแก้ว</td>
+                <td><input type="number" id="milkCostPerCup" value="5" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td>ค่าน้ำตาลต่อแก้ว</td>
+                <td><input type="number" id="sugarCostPerCup" value="0.30" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td>ค่าแก้วพลาสติก</td>
+                <td><input type="number" id="cupCostPerCup" value="2" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td>ค่าหลอดพลาสติก</td>
+                <td><input type="number" id="strawCostPerCup" value="1" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td><strong>ต้นทุนรวมต่อแก้ว</strong></td>
+                <td><strong id="totalCostPerCup">16.30</strong></td>
+            </tr>
+            <tr>
+                <td>ราคาซื้อกาแฟจากร้านต่อแก้ว</td>
+                <td><input type="number" id="coffeePricePerCup" value="60" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td><strong>เงินที่ประหยัดได้ต่อแก้ว</strong></td>
+                <td><strong id="savingPerCup">43.70</strong></td>
+            </tr>
+            <tr>
+                <td>จำนวนแก้วที่บริโภคต่อวัน</td>
+                <td><input type="number" id="cupsPerDay" value="2" oninput="calculate()"></td>
+            </tr>
+            <tr>
+                <td><strong>เงินที่ประหยัดได้ต่อวัน</strong></td>
+                <td><strong id="savingPerDay">87.40</strong></td>
+            </tr>
+            <tr>
+                <td><strong>ระยะเวลาคืนทุน (วัน)</strong></td>
+                <td><strong id="paybackPeriod">171.62</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
