@@ -1,174 +1,260 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คำนวณระยะเวลาคืนทุนของเครื่องชงกาแฟ</title>
+    <title>คำนวณระยะเวลาคืนทุน - เครื่องชงกาแฟ</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-color: #f7f7f7;
+            margin: 0;
         }
-        h1 {
-            text-align: center;
-            font-size: 1.5em;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 90%;
-            max-width: 600px;
-            margin: 0 auto;
-            border-collapse: collapse;
+
+        .container {
             background-color: #fff;
+            padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
+
+        .dark-mode {
+            background-color: #121212;
+            color: #ffffff;
         }
-        th {
-            background-color: #f2f2f2;
+
+        .dark-mode .container {
+            background-color: #1e1e1e;
+            color: #ffffff;
         }
-        input[type="number"] {
-            width: 100%;
-            padding: 5px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+
+        .dark-mode .form-control {
+            background-color: #333;
+            color: #ffffff;
+            border: 1px solid #555;
         }
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.2em;
-            }
-            table, th, td {
-                font-size: 0.9em;
-            }
-            th, td {
-                padding: 6px;
-            }
+
+        .dark-mode .form-check-input {
+            background-color: #333;
+            border: 1px solid #555;
+        }
+    </style>
+    <style>
+        .dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+    
+        .dark-mode .container {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+    
+        .dark-mode .form-control {
+            background-color: #333;
+            color: #ffffff;
+            border: 1px solid #555;
+        }
+    
+        .dark-mode .form-check-input {
+            background-color: #333;
+            border: 1px solid #555;
         }
     </style>
     <script>
-        function calculate() {
-            const machinePrice = parseFloat(document.getElementById('machinePrice').value) || 0;
-            const additionalCost = parseFloat(document.getElementById('additionalCost').value) || 0;
-            const coffeeWeight = parseFloat(document.getElementById('coffeeWeight').value) || 0;
-            const coffeePrice = parseFloat(document.getElementById('coffeePrice').value) || 0;
-            const coffeePerCup = parseFloat(document.getElementById('coffeePerCup').value) || 0;
-            const milkCostPerCup = parseFloat(document.getElementById('milkCostPerCup').value) || 0;
-            const sugarCostPerCup = parseFloat(document.getElementById('sugarCostPerCup').value) || 0;
-            const cupCostPerCup = parseFloat(document.getElementById('cupCostPerCup').value) || 0;
-            const strawCostPerCup = parseFloat(document.getElementById('strawCostPerCup').value) || 0;
-            const coffeePricePerCup = parseFloat(document.getElementById('coffeePricePerCup').value) || 0;
-            const cupsPerDay = parseInt(document.getElementById('cupsPerDay').value) || 0;
+        $(document).ready(function () {
+            const aniDur = 300; // Animation duration in milliseconds
 
-            const coffeeCostPerGram = coffeePrice / coffeeWeight;
-            const coffeeCostPerCup = coffeeCostPerGram * coffeePerCup;
+            function calculate() {
+                const machinePrice = parseFloat($('#machinePrice').val()) || 0;
+                const additionalCost = parseFloat($('#additionalCost').val()) || 0;
+                const coffeeWeight = parseFloat($('#coffeeWeight').val()) || 0;
+                const coffeePrice = parseFloat($('#coffeePrice').val()) || 0;
+                const coffeePerCup = parseFloat($('#coffeePerCup').val()) || 0;
+                const coffeePricePerCup = parseFloat($('#coffeePricePerCup').val()) || 0;
+                const cupsPerDay = parseFloat($('#cupsPerDay').val()) || 0;
+                const includeMilk = $('#includeMilk').prop('checked');
+                const includeSugar = $('#includeSugar').prop('checked');
+                const includeCup = $('#includeCup').prop('checked');
+                const includeStraw = $('#includeStraw').prop('checked');
 
-            const totalCost = machinePrice + additionalCost;
-            const totalCostPerCup = coffeeCostPerCup + milkCostPerCup + sugarCostPerCup + cupCostPerCup + strawCostPerCup;
-            const savingPerCup = coffeePricePerCup - totalCostPerCup;
-            const savingPerDay = savingPerCup * cupsPerDay;
-            const paybackPeriod = totalCost / savingPerDay;
+                let milkCostPerCup = 0, sugarCostPerCup = 0, cupCostPerCup = 0, strawCostPerCup = 0;
 
-            document.getElementById('totalCost').innerText = totalCost.toFixed(2);
-            document.getElementById('coffeeCostPerCup').innerText = coffeeCostPerCup.toFixed(2);
-            document.getElementById('totalCostPerCup').innerText = totalCostPerCup.toFixed(2);
-            document.getElementById('savingPerCup').innerText = savingPerCup.toFixed(2);
-            document.getElementById('savingPerDay').innerText = savingPerDay.toFixed(2);
-            document.getElementById('paybackPeriod').innerText = isFinite(paybackPeriod) ? paybackPeriod.toFixed(2) : 'N/A';
-        }
+                if (includeMilk) {
+                    const milkBottleSize = parseFloat($('#milkBottleSize').val()) || 1;
+                    const milkBottlePrice = parseFloat($('#milkBottlePrice').val()) || 0;
+                    const milkPerCup = parseFloat($('#milkPerCup').val()) || 0;
+                    const milkCostPerCC = milkBottlePrice / milkBottleSize;
+                    milkCostPerCup = milkCostPerCC * milkPerCup;
+                }
 
-        window.onload = calculate;
+                if (includeSugar) {
+                    sugarCostPerCup = parseFloat($('#sugarCostPerCup').val()) || 0;
+                }
+
+                if (includeCup) {
+                    cupCostPerCup = parseFloat($('#cupCostPerCup').val()) || 0;
+                }
+
+                if (includeStraw) {
+                    strawCostPerCup = parseFloat($('#strawCostPerCup').val()) || 0;
+                }
+
+                const coffeeCostPerGram = coffeePrice / coffeeWeight;
+                const coffeeCostPerCup = coffeeCostPerGram * coffeePerCup;
+
+                const totalCost = machinePrice + additionalCost;
+                const totalCostPerCup = coffeeCostPerCup + milkCostPerCup + sugarCostPerCup + cupCostPerCup + strawCostPerCup;
+                const savingPerCup = coffeePricePerCup - totalCostPerCup;
+                const savingPerDay = savingPerCup * cupsPerDay;
+                const paybackPeriod = totalCost / savingPerDay;
+                // console.log({ totalCost, coffeePricePerCup, totalCostPerCup, savingPerCup, savingPerDay, paybackPeriod });
+
+                $('#totalCost').text(totalCost.toFixed(2));
+                $('#coffeeCostPerCup').text(coffeeCostPerCup.toFixed(2));
+                $('#milkCostPerCupDisplay').text(milkCostPerCup.toFixed(2));
+                $('#totalCostPerCup').text(totalCostPerCup.toFixed(2));
+                $('#savingPerCup').text(savingPerCup.toFixed(2));
+                $('#savingPerDay').text(savingPerDay.toFixed(2));
+                $('#paybackPeriod').text(isFinite(paybackPeriod) ? paybackPeriod.toFixed(2) : 'N/A');
+            }
+
+            $('#includeMilk').change(calculate);
+            $('#includeSugar').change(calculate);
+            $('#includeCup').change(calculate);
+            $('#includeStraw').change(calculate);
+            $('input').on('input', calculate);
+
+            $('#toggleDarkMode').click(function () {
+                $('body').toggleClass('dark-mode');
+            });
+
+
+            // Run on load to set initial state
+            calculate();
+            $('body').toggleClass('dark-mode');
+        });
     </script>
 </head>
+
 <body>
-    <h1>คำนวณระยะเวลาคืนทุนของเครื่องชงกาแฟ</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>รายการ</th>
-                <th>ค่า (บาท)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>ราคาของเครื่องชงกาแฟ</td>
-                <td><input type="number" id="machinePrice" value="15000" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td>ค่าใช้จ่ายเพิ่มเติม</td>
-                <td><input type="number" id="additionalCost" value="0" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td><strong>ต้นทุนทั้งหมด</strong></td>
-                <td><strong id="totalCost">15000.00</strong></td>
-            </tr>
-            <tr>
-                <td>น้ำหนักเมล็ดกาแฟ (กรัม)</td>
-                <td><input type="number" id="coffeeWeight" value="250" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td>ราคาเมล็ดกาแฟ</td>
-                <td><input type="number" id="coffeePrice" value="200" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td>น้ำหนักกาแฟต่อแก้ว (กรัม)</td>
-                <td><input type="number" id="coffeePerCup" value="10" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td><strong>ต้นทุนเมล็ดกาแฟต่อแก้ว</strong></td>
-                <td><strong id="coffeeCostPerCup">8.00</td>
-            </tr>
-            <tr>
-                <td>ค่านมต่อแก้ว</td>
-                <td><input type="number" id="milkCostPerCup" value="5" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td>ค่าน้ำตาลต่อแก้ว</td>
-                <td><input type="number" id="sugarCostPerCup" value="0.30" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td>ค่าแก้วพลาสติก</td>
-                <td><input type="number" id="cupCostPerCup" value="2" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td>ค่าหลอดพลาสติก</td>
-                <td><input type="number" id="strawCostPerCup" value="1" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td><strong>ต้นทุนรวมต่อแก้ว</strong></td>
-                <td><strong id="totalCostPerCup">16.30</strong></td>
-            </tr>
-            <tr>
-                <td>ราคาซื้อกาแฟจากร้านต่อแก้ว</td>
-                <td><input type="number" id="coffeePricePerCup" value="60" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td><strong>เงินที่ประหยัดได้ต่อแก้ว</strong></td>
-                <td><strong id="savingPerCup">43.70</strong></td>
-            </tr>
-            <tr>
-                <td>จำนวนแก้วที่บริโภคต่อวัน</td>
-                <td><input type="number" id="cupsPerDay" value="2" oninput="calculate()"></td>
-            </tr>
-            <tr>
-                <td><strong>เงินที่ประหยัดได้ต่อวัน</strong></td>
-                <td><strong id="savingPerDay">87.40</strong></td>
-            </tr>
-            <tr>
-                <td><strong>ระยะเวลาคืนทุน (วัน)</strong></td>
-                <td><strong id="paybackPeriod">171.62</strong></td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="container">
+        <button id="toggleDarkMode" class="btn btn-secondary mb-4">Toggle Dark Mode</button>
+        <h2 class="text-center">ระยะเวลาคืนทุนเครื่องชงกาแฟ</h2>
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>รายการ</th>
+                    <th>ค่า (บาท)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ราคาของเครื่องชงกาแฟ</td>
+                    <td><input type="number" id="machinePrice" value="15000" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>ค่าใช้จ่ายเพิ่มเติม</td>
+                    <td><input type="number" id="additionalCost" value="0" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td><strong>ต้นทุนทั้งหมด</strong></td>
+                    <td><strong id="totalCost">15000.00</strong></td>
+                </tr>
+                <tr>
+                    <td>น้ำหนักเมล็ดกาแฟ (กรัม)</td>
+                    <td><input type="number" id="coffeeWeight" value="250" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>ราคาเมล็ดกาแฟ</td>
+                    <td><input type="number" id="coffeePrice" value="200" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>น้ำหนักกาแฟต่อแก้ว (กรัม)</td>
+                    <td><input type="number" id="coffeePerCup" value="10" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td><strong>ต้นทุนเมล็ดกาแฟต่อแก้ว</strong></td>
+                    <td><strong id="coffeeCostPerCup">8.00</strong></td>
+                </tr>
+                <tr>
+                    <td>ใส่นมหรือไม่</td>
+                    <td><input type="checkbox" id="includeMilk" class="form-check-label"></td>
+                </tr>
+                <tr class="milk-field">
+                    <td>ขนาดขวดนม (cc)</td>
+                    <td><input type="number" id="milkBottleSize" value="1000" class="form-control"></td>
+                </tr>
+                <tr class="milk-field">
+                    <td>ราคาขวดนม (บาท)</td>
+                    <td><input type="number" id="milkBottlePrice" value="50" class="form-control"></td>
+                </tr>
+                <tr class="milk-field">
+                    <td>ปริมาณนมต่อแก้ว (cc)</td>
+                    <td><input type="number" id="milkPerCup" value="50" class="form-control"></td>
+                </tr>
+                <tr class="milk-field">
+                    <td><strong>ต้นทุนนมต่อแก้ว</strong></td>
+                    <td><strong id="milkCostPerCupDisplay">2.50</strong></td>
+                </tr>
+                <tr>
+                    <td>ใส่น้ำตาลหรือไม่</td>
+                    <td><input type="checkbox" id="includeSugar" class="form-check-label"></td>
+                </tr>
+                <tr class="sugar-field">
+                    <td>ค่าน้ำตาลต่อแก้ว</td>
+                    <td><input type="number" id="sugarCostPerCup" value="0.30" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>ใช้แก้วพลาสติกหรือไม่</td>
+                    <td><input type="checkbox" id="includeCup" class="form-check-label"></td>
+                </tr>
+                <tr class="cup-field">
+                    <td>ค่าแก้วพลาสติก</td>
+                    <td><input type="number" id="cupCostPerCup" value="2" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td>ใช้หลอดพลาสติกหรือไม่</td>
+                    <td><input type="checkbox" id="includeStraw" class="form-check-label"></td>
+                </tr>
+                <tr class="straw-field">
+                    <td>ค่าหลอดพลาสติก</td>
+                    <td><input type="number" id="strawCostPerCup" value="1" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td><strong>ต้นทุนรวมต่อแก้ว</strong></td>
+                    <td><strong id="totalCostPerCup">16.30</strong></td>
+                </tr>
+                <tr>
+                    <td>ราคาซื้อกาแฟจากร้านต่อแก้ว</td>
+                    <td><input type="number" id="coffeePricePerCup" value="60" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td><strong>เงินที่ประหยัดได้ต่อแก้ว</strong></td>
+                    <td><strong id="savingPerCup">43.70</strong></td>
+                </tr>
+                <tr>
+                    <td>จำนวนแก้วที่บริโภคต่อวัน</td>
+                    <td><input type="number" id="cupsPerDay" value="2" class="form-control"></td>
+                </tr>
+                <tr>
+                    <td><strong>เงินที่ประหยัดได้ต่อวัน</strong></td>
+                    <td><strong id="savingPerDay">87.40</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>ระยะเวลาคืนทุน (วัน)</strong></td>
+                    <td><strong id="paybackPeriod">171.62</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </body>
+
 </html>
