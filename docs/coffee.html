@@ -2,12 +2,32 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>คำนวณระยะเวลาคืนทุนของเครื่องชงกาแฟ</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
         table {
-            width: 50%;
+            width: 90%;
+            max-width: 600px;
             margin: 0 auto;
             border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         th, td {
             border: 1px solid #ddd;
@@ -17,8 +37,23 @@
         th {
             background-color: #f2f2f2;
         }
-        h1 {
-            text-align: center;
+        input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.2em;
+            }
+            table, th, td {
+                font-size: 0.9em;
+            }
+            th, td {
+                padding: 6px;
+            }
         }
     </style>
     <script>
@@ -51,6 +86,8 @@
             document.getElementById('savingPerDay').innerText = savingPerDay.toFixed(2);
             document.getElementById('paybackPeriod').innerText = isFinite(paybackPeriod) ? paybackPeriod.toFixed(2) : 'N/A';
         }
+
+        window.onload = calculate;
     </script>
 </head>
 <body>
@@ -89,7 +126,7 @@
             </tr>
             <tr>
                 <td><strong>ต้นทุนเมล็ดกาแฟต่อแก้ว</strong></td>
-                <td><strong id="coffeeCostPerCup">8.00</strong></td>
+                <td><strong id="coffeeCostPerCup">8.00</td>
             </tr>
             <tr>
                 <td>ค่านมต่อแก้ว</td>
