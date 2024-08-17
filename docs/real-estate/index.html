@@ -80,6 +80,22 @@
                 resultRow.find('.yearly').text(parseFloat(yearly).toLocaleString());
                 resultRow.find('.monthly').text(parseFloat(monthly).toLocaleString());
                 resultRow.find('.daily').text(parseFloat(daily).toLocaleString());
+                // After updating values, sort the table
+                sortResults();
+            }
+
+            function sortResults() {
+                let rows = $('#resultContainer .result-row').get();
+
+                rows.sort(function (a, b) {
+                    let keyA = parseFloat($(a).find('.yearly').text().replace(/,/g, '')) || 0;
+                    let keyB = parseFloat($(b).find('.yearly').text().replace(/,/g, '')) || 0;
+                    return keyB - keyA; // Sort in descending order
+                });
+
+                $.each(rows, function (index, row) {
+                    $('#resultContainer tbody').append(row);
+                });
             }
 
             // Function to add a new row
