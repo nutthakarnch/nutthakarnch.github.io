@@ -49,7 +49,7 @@ input[type="number"] {
     color: #495057;
 }
 
-input[type="button"] {
+button {
     width: 100%;
     padding: 12px;
     border: none;
@@ -61,8 +61,16 @@ input[type="button"] {
     transition: background-color 0.3s ease;
 }
 
-input[type="button"]:hover {
+button:hover {
     background-color: #218838;
+}
+
+button.danger {
+    background-color: #dc3545;
+}
+
+button.danger:hover {
+    background-color: #bd2130;
 }
 
 .narrow-column {

@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Table with Calculations</title>
-    <link rel="stylesheet" href="/web/resources/styles.css">
-    <script src="/web/resources/cookies.js"></script>
+    <!-- <link rel="stylesheet" href="/web/resources/styles.css"> -->
+    <!-- <script src="/web/resources/cookies.js"></script> -->
+    <link rel="stylesheet" href="./resources/styles.css">
+    <script src="./resources/cookies.js"></script>
 </head>
 
 <body>
-    <h1>Table with Calculations</h1>
+    <h1>Table Calculations</h1>
     <table>
         <thead>
             <tr>
@@ -86,14 +88,40 @@
                 <td class="direction" data-label="Direction">left</td>
             </tr>
             <tr>
-                <td colspan="4">
-                    <input type="button" value="Clear all" onclick="clearAll()" />
+                <td colspan="2">
+                    <button type="button" onclick="clearAll()">Clear all</button>
+                </td>
+                <td colspan="2">
+                    <button type="button" onclick="saveValues()">Save Values</button>
                 </td>
             </tr>
         </tbody>
     </table>
+    <h2>History</h2>
+    <table>
+        <thead>
+            <th>Date</th>
+            <th>Delete</th>
+        </thead>
+        <tbody id="historyTableBody">
+            <!-- Add history rows here -->
+        </tbody>
+    </table>
+    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button"
+            data-slug="Dante0x7c6" data-color="#FFDD00" data-emoji="☕" data-font="Cookie" data-text="Buy me a coffee"
+            data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
 
     <script>
+        function saveValues() {
+            const obj = {};
+            document.querySelectorAll('input[type=number]').forEach((input) => {
+                obj[input.name] = input.value;
+            });
+            //save to local storage
+            HistoryManager.upsertEntry(new Date(), obj);
+            HistoryManager.renderHistory();
+        }
+
         function clearAll() {
             const inputs = document.querySelectorAll('input[type=number]');
             inputs.forEach((input) => {
@@ -135,8 +163,91 @@
         }
 
         window.onload = function () {
+            HistoryManager.renderHistory();
             loadValuesFromCookie();
         };
+
+        class HistoryManager {
+            static renderHistory() {
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '';
+                const history = this.getHistory();
+                // console.log({ history })
+                for (const date in history) {
+                    const row = tbody.insertRow();
+                    const dateCell = row.insertCell();
+                    dateCell.innerText = date;
+                    const deleteCell = row.insertCell();
+                    deleteCell.innerHTML = `<button class="danger" onclick="HistoryManager.removeEntry('${date}'); HistoryManager.renderHistory();">Delete</button>`;
+                }
+            }
+            // Get the current history from localStorage
+            static getHistory() {
+                const storedData = localStorage.getItem('history');
+                // console.log({ storedData })
+                if (storedData) {
+                    const parsedData = JSON.parse(storedData);
+                    console.log({ parsedData })
+                    return parsedData.history || {};
+                }
+                return {};
+            }
+
+            // Save the updated history array to localStorage
+            static saveHistory(history) {
+                // localStorage.setItem('history', JSON.stringify({ history }));
+                localStorage.setItem('history', JSON.stringify({ history }));
+            }
+
+            // Add or update an entry in the history
+            static upsertEntry(date, objectValue) {
+                let history = this.getHistory();
+
+                // Check if the entry for the given date already exists
+                let entryExists = false;
+                for (const entry in history) {
+                    if (entry[date]) {
+                        entry[date] = objectValue;
+                        entryExists = true;
+                        break;
+                    }
+                }
+
+                // If the entry does not exist, add a new one
+                if (!entryExists) {
+                    history[date] = objectValue;
+                }
+
+                // Save the updated history
+                this.saveHistory(history);
+            }
+
+            // Get an entry by date
+            static getEntry(date) {
+                const history = this.getHistory();
+
+                // Find the entry for the given date
+                for (const entry in history) {
+                    if (entry[date]) {
+                        return entry[date];
+                    }
+                }
+                return null;
+            }
+
+            // Remove an entry by date
+            static removeEntry(date) {
+                let history = this.getHistory();
+
+                delete history[date];
+                // console.log({history})
+                // // Filter out the entry for the given date
+                // history = history.map(entry => entry) .filter(entry => !entry[date]);
+
+                // Save the updated history
+                this.saveHistory(history);
+            }
+        }
     </script>
 </body>
 
