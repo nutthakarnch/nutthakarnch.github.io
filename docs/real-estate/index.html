@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณดอกเบี้ยบ้าน</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">คำนวณดอกเบี้ยบ้าน</h2>
+
+        <!-- Input Section -->
+        <div id="inputContainer">
+            <div class="row g-3 mb-3 loan-row">
+                <div class="col-md-3">
+                    <input type="text" class="form-control house-name" placeholder="บ้าน 1" value="บ้าน 1" />
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control balance" placeholder="ยอดคงเหลือ" />
+                </div>
+                <div class="col-md-3">
+                    <input type="number" step="0.01" class="form-control rate" placeholder="ดอกเบี้ย (%)" />
+                </div>
+                <div class="col-md-3 d-flex align-items-center">
+                    <button class="btn btn-danger remove-btn">ลบ</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <button id="addRow" class="btn btn-success">เพิ่มบ้าน</button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultContainer" class="mt-5">
+            <h4>ผลลัพท์</h4>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ชื่อบ้าน</th>
+                        <th>ปีละ</th>
+                        <th>เดือนละ</th>
+                        <th>วันละ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results will be appended here -->
+                    <tr class="result-row">
+                        <td class="house-name">บ้าน 1</td>
+                        <td class="yearly"></td>
+                        <td class="monthly"></td>
+                        <td class="daily"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            let houseCount = 1;
+
+            function calculateRow(row) {
+                let balance = parseFloat(row.find('.balance').val()) || 0;
+                let rate = parseFloat(row.find('.rate').val()) || 0;
+
+                let houseName = row.find('.house-name').val();
+                let yearly = (balance * rate / 100).toFixed(2);
+                let monthly = (yearly / 12).toFixed(2);
+                let daily = (yearly / 365).toFixed(2);
+
+                let resultRow = $('#resultContainer .result-row').eq(row.index());
+                resultRow.find('.house-name').text(houseName);
+                resultRow.find('.yearly').text(parseFloat(yearly).toLocaleString());
+                resultRow.find('.monthly').text(parseFloat(monthly).toLocaleString());
+                resultRow.find('.daily').text(parseFloat(daily).toLocaleString());
+                // After updating values, sort the table
+                sortResults();
+            }
+
+            function sortResults() {
+                let rows = $('#resultContainer .result-row').get();
+
+                rows.sort(function (a, b) {
+                    let keyA = parseFloat($(a).find('.yearly').text().replace(/,/g, '')) || 0;
+                    let keyB = parseFloat($(b).find('.yearly').text().replace(/,/g, '')) || 0;
+                    return keyB - keyA; // Sort in descending order
+                });
+
+                $.each(rows, function (index, row) {
+                    $('#resultContainer tbody').append(row);
+                });
+            }
+
+            // Function to add a new row
+            $('#addRow').click(function () {
+                houseCount++;
+                let houseName = 'บ้าน ' + houseCount;
+                $('#inputContainer').append(
+                    '<div class="row g-3 mb-3 loan-row">' +
+                    '<div class="col-md-3">' +
+                    '<input type="text" class="form-control house-name" placeholder="' + houseName + '" value="' + houseName + '" />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                    '<input type="number" class="form-control balance" placeholder="ยอดคงเหลือ" />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                    '<input type="number" step="0.01" class="form-control rate" placeholder="ดอกเบี้ย (%)" />' +
+                    '</div>' +
+                    '<div class="col-md-3 d-flex align-items-center">' +
+                    '<button class="btn btn-danger remove-btn">ลบ</button>' +
+                    '</div>' +
+                    '</div>'
+                );
+
+                $('#resultContainer tbody').append(
+                    '<tr class="result-row">' +
+                    '<td class="house-name">' + houseName + '</td>' +
+                    '<td class="yearly"></td>' +
+                    '<td class="monthly"></td>' +
+                    '<td class="daily"></td>' +
+                    '</tr>'
+                );
+            });
+
+            // Calculate when balance or rate inputs are changed
+            $('#inputContainer').on('input', '.house-name, .balance, .rate', function () {
+                let row = $(this).closest('.loan-row');
+                calculateRow(row);
+            });
+
+            // Delegate event handler for dynamically added rows
+            $('#inputContainer').on('click', '.remove-btn', function () {
+                let rowIndex = $(this).closest('.loan-row').index();
+                $(this).closest('.loan-row').remove();
+                $('#resultContainer .result-row').eq(rowIndex).remove();
+            });
+
+            // Initial calculation for the first row
+            calculateRow($('.loan-row').first());
+        });
+    </script>
+
+</body>
+
+</html>
