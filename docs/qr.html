@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="./resources/jquery-3.6.0.min.js"></script>
+    <script src="./resources/bootstrap5.3.0.bundle.min.js"></script>
+    <script src="./resources/qrcode.min.js"></script>
+    <link href="./resources/bootstrap5.3.0.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        #qrcode {
+            margin-top: 20px;
+            padding: 10px;
+            min-height: 210px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="mb-3">QR Code Generator</h2>
+    <input type="text" id="qrText" class="form-control" placeholder="Type here..." autocomplete="off" value="https://www.google.com/">
+    <div id="qrcode"></div>
+    <button class="btn btn-success mt-3" id="downloadBtn">Download QR Code</button>
+</div>
+
+<script>
+    $(document).ready(function(){
+        let qr = new QRCode(document.getElementById("qrcode"), {
+            text: $('#qrText').val(), // Default QR code
+            width: 200,
+            height: 200
+        });
+
+        $('#qrText').on('input', function(){
+            let text = $(this).val().trim();
+            if(text === '') {
+                $('#qrcode').empty(); // Clear QR if input is empty
+                $('#downloadBtn').addClass('d-none');
+                return;
+            }
+
+            $('#qrcode').empty();
+            qr = new QRCode(document.getElementById("qrcode"), {
+                text: text,
+                width: 200,
+                height: 200
+            });
+
+            $('#downloadBtn').removeClass('d-none');
+        });
+
+        $('#downloadBtn').click(function(){
+            let canvas = $('#qrcode img')[0]; // Get QR Code Image
+            let link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = canvas.src;
+            link.click();
+        });
+    });
+</script>
+
+</body>
+</html>
