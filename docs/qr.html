@@ -35,7 +35,7 @@
 
 <div class="container">
     <h2 class="mb-3">QR Code Generator</h2>
-    <input type="text" id="qrText" class="form-control" placeholder="Type here..." autocomplete="off" value="https://www.google.com/">
+    <input type="text" id="qrText" class="form-control" placeholder="Type here..." autocomplete="off">
     <div id="qrcode"></div>
     <button class="btn btn-success mt-3" id="downloadBtn">Download QR Code</button>
 </div>
@@ -43,7 +43,7 @@
 <script>
     $(document).ready(function(){
         let qr = new QRCode(document.getElementById("qrcode"), {
-            text: $('#qrText').val(), // Default QR code
+            text: 'https://www.google.com/', // Default QR code
             width: 200,
             height: 200
         });
