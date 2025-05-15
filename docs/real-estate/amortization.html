@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Amortization Calculator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      padding: 20px;
+    }
+    table {
+      font-size: 0.9rem;
+    }
+    .table-responsive {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    @media (max-width: 576px) {
+      table {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="mb-4">Amortization Schedule Calculator (ลดต้นลดดอก)</h2>
+
+    <form id="calcForm" class="row g-3 mb-4">
+      <div class="col-md-6 col-sm-12">
+        <label for="homePrice" class="form-label">ราคาบ้าน (บาท)</label>
+        <input type="number" class="form-control" id="homePrice" min="0" step="1000" value="4500000" />
+      </div>
+      <div class="col-md-6 col-sm-12">
+        <label for="downPayment" class="form-label">เงินดาวน์ (บาท)</label>
+        <input type="number" class="form-control" id="downPayment" min="0" step="1000" value="200000" />
+      </div>
+      <div class="col-md-6 col-sm-12">
+        <label for="annualInterest" class="form-label">อัตราดอกเบี้ยต่อปี (%)</label>
+        <input type="number" class="form-control" id="annualInterest" min="0" step="0.01" value="5" />
+      </div>
+      <div class="col-md-6 col-sm-12">
+        <label for="numMonths" class="form-label">จำนวนงวด (เดือน)</label>
+        <input type="number" class="form-control" id="numMonths" min="1" step="1" value="36" />
+      </div>
+      <div class="col-md-6 col-sm-12">
+        <label for="monthlyPayment" class="form-label">เงินผ่อนต่อเดือน (บาท) (ถ้าระบุจะใช้เงินงวดนี้แทน)</label>
+        <input type="number" class="form-control" id="monthlyPayment" min="0" step="100" value="20000" />
+        <div class="form-text">ถ้าว่างระบบจะคำนวณเงินงวดที่เหมาะสม</div>
+      </div>
+    </form>
+
+    <div id="calcResult" class="mb-3"></div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark sticky-top">
+          <tr>
+            <th>งวดที่</th>
+            <th>ยอดเงินต้นคงเหลือ (บาท)</th>
+            <th>ดอกเบี้ย (บาท)</th>
+            <th>เงินตัดเงินต้น (บาท)</th>
+            <th>เงินผ่อนรวม (บาท)</th>
+          </tr>
+        </thead>
+        <tbody id="amortizationTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function formatNumber(num) {
+      return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculateAmortization(
+      principal,
+      annualInterestRate,
+      months,
+      monthlyPaymentOverride
+    ) {
+      const monthlyInterestRate = annualInterestRate / 100 / 12;
+      let balance = principal;
+      let month = 0;
+      let schedule = [];
+      let monthlyPayment = monthlyPaymentOverride;
+
+      // ถ้าไม่ใส่ monthlyPayment ให้คำนวณเงินงวดที่เหมาะสม (สูตร amortization)
+      if (!monthlyPayment || monthlyPayment <= 0) {
+        if (monthlyInterestRate === 0) {
+          monthlyPayment = principal / months;
+        } else {
+          monthlyPayment =
+            principal *
+            (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, months)) /
+            (Math.pow(1 + monthlyInterestRate, months) - 1);
+        }
+      }
+
+      // loop คำนวณงวดทีละเดือนจนเงินต้นหมดหรือเกินจำนวนงวด
+      while (balance > 0 && month < months) {
+        month++;
+        const interestPayment = balance * monthlyInterestRate;
+        let principalPayment = monthlyPayment - interestPayment;
+
+        if (principalPayment < 0) {
+          // เงินผ่อนไม่พอจ่ายดอกเบี้ย
+          principalPayment = 0;
+          monthlyPayment = interestPayment;
+        }
+
+        if (principalPayment > balance) {
+          principalPayment = balance;
+          monthlyPayment = interestPayment + principalPayment;
+        }
+
+        balance -= principalPayment;
+        if (balance < 0.01) balance = 0; // ป้องกันเลขลบจุดทศนิยมเล็กๆ
+
+        schedule.push({
+          month,
+          balance,
+          interestPayment,
+          principalPayment,
+          monthlyPayment,
+        });
+      }
+
+      return { schedule, monthlyPayment };
+    }
+
+    function renderTable(schedule) {
+      const tbody = $("#amortizationTableBody");
+      tbody.empty();
+
+      schedule.forEach((row) => {
+        const tr = $("<tr></tr>");
+        tr.append(`<td>${row.month}</td>`);
+        tr.append(`<td class="text-end">${formatNumber(row.balance)}</td>`);
+        tr.append(`<td class="text-end">${formatNumber(row.interestPayment)}</td>`);
+        tr.append(`<td class="text-end">${formatNumber(row.principalPayment)}</td>`);
+        tr.append(`<td class="text-end">${formatNumber(row.monthlyPayment)}</td>`);
+        tbody.append(tr);
+      });
+    }
+
+    function updateResults() {
+      const homePrice = Number($("#homePrice").val());
+      const downPayment = Number($("#downPayment").val());
+      const annualInterest = Number($("#annualInterest").val());
+      const numMonths = Number($("#numMonths").val());
+      const monthlyPaymentInput = Number($("#monthlyPayment").val());
+
+      if (
+        homePrice <= 0 ||
+        downPayment < 0 ||
+        annualInterest < 0 ||
+        numMonths <= 0
+      ) {
+        $("#calcResult").html(
+          `<div class="alert alert-warning">กรุณากรอกข้อมูลให้ถูกต้องทั้งหมด</div>`
+        );
+        $("#amortizationTableBody").empty();
+        return;
+      }
+
+      if (downPayment > homePrice) {
+        $("#calcResult").html(
+          `<div class="alert alert-warning">เงินดาวน์ต้องไม่เกินราคาบ้าน</div>`
+        );
+        $("#amortizationTableBody").empty();
+        return;
+      }
+
+      const principal = homePrice - downPayment;
+
+      // ถ้า monthlyPaymentInput <= 0 ให้ส่ง null เพื่อคำนวณเงินงวดที่เหมาะสม
+      const monthlyPayment = monthlyPaymentInput > 0 ? monthlyPaymentInput : null;
+
+      const { schedule, monthlyPayment: calculatedMonthlyPayment } = calculateAmortization(
+        principal,
+        annualInterest,
+        numMonths,
+        monthlyPayment
+      );
+
+      let resultHtml = "";
+      if (!monthlyPayment) {
+        resultHtml = `<div class="alert alert-info">
+          เงินผ่อนรายเดือนที่คำนวณได้: <strong>${formatNumber(calculatedMonthlyPayment)} บาท</strong>
+        </div>`;
+      } else {
+        resultHtml = `<div class="alert alert-info">
+          เงินผ่อนรายเดือนที่ใส่: <strong>${formatNumber(monthlyPayment)}</strong> บาท
+        </div>`;
+      }
+
+      resultHtml += `<div class="alert alert-secondary">
+        จำนวนงวดที่ต้องใช้จริง: <strong>${schedule.length} งวด</strong>
+      </div>`;
+
+      $("#calcResult").html(resultHtml);
+      renderTable(schedule);
+    }
+
+    // เรียก updateResults ทุกครั้งที่มีการแก้ไขข้อมูล
+    $("#calcForm input").on("input", updateResults);
+
+    // เรียกตอนโหลดครั้งแรก
+    $(document).ready(updateResults);
+  </script>
+</body>
+</html>
