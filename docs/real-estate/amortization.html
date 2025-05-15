@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,13 +10,16 @@
     body {
       padding: 20px;
     }
+
     table {
       font-size: 0.9rem;
     }
+
     .table-responsive {
       max-height: 400px;
       overflow-y: auto;
     }
+
     @media (max-width: 576px) {
       table {
         font-size: 0.8rem;
@@ -23,6 +27,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2 class="mb-4">Amortization Schedule Calculator (ลดต้นลดดอก)</h2>
@@ -61,7 +66,6 @@
             <th>ยอดเงินต้นคงเหลือ (บาท)</th>
             <th>ดอกเบี้ย (บาท)</th>
             <th>เงินตัดเงินต้น (บาท)</th>
-            <th>เงินผ่อนรวม (บาท)</th>
           </tr>
         </thead>
         <tbody id="amortizationTableBody"></tbody>
@@ -143,7 +147,6 @@
         tr.append(`<td class="text-end">${formatNumber(row.balance)}</td>`);
         tr.append(`<td class="text-end">${formatNumber(row.interestPayment)}</td>`);
         tr.append(`<td class="text-end">${formatNumber(row.principalPayment)}</td>`);
-        tr.append(`<td class="text-end">${formatNumber(row.monthlyPayment)}</td>`);
         tbody.append(tr);
       });
     }
@@ -191,27 +194,32 @@
       let resultHtml = "";
       if (!monthlyPayment) {
         resultHtml = `<div class="alert alert-info">
-          เงินผ่อนรายเดือนที่คำนวณได้: <strong>${formatNumber(calculatedMonthlyPayment)} บาท</strong>
-        </div>`;
+      เงินผ่อนรายเดือนที่คำนวณได้: <strong>${formatNumber(calculatedMonthlyPayment)} บาท</strong>
+    </div>`;
       } else {
         resultHtml = `<div class="alert alert-info">
-          เงินผ่อนรายเดือนที่ใส่: <strong>${formatNumber(monthlyPayment)}</strong> บาท
-        </div>`;
+      เงินผ่อนรายเดือนที่ใส่: <strong>${formatNumber(monthlyPayment)}</strong> บาท
+    </div>`;
       }
 
       resultHtml += `<div class="alert alert-secondary">
-        จำนวนงวดที่ต้องใช้จริง: <strong>${schedule.length} งวด</strong>
-      </div>`;
+    จำนวนงวดที่ต้องใช้จริง: <strong>${schedule.length} งวด</strong>
+  </div>`;
+
+      // เพิ่มแสดงยอดเงินต้นคงเหลือหลังครบงวด
+      const lastBalance = schedule.length > 0 ? schedule[schedule.length - 1].balance : principal;
+      resultHtml += `<div class="alert alert-secondary">
+    ยอดเงินต้นคงเหลือหลังครบจำนวนงวดที่กำหนด: <strong>${formatNumber(lastBalance)} บาท</strong>
+  </div>`;
 
       $("#calcResult").html(resultHtml);
       renderTable(schedule);
-    }
-
-    // เรียก updateResults ทุกครั้งที่มีการแก้ไขข้อมูล
+    }    // เรียก updateResults ทุกครั้งที่มีการแก้ไขข้อมูล
     $("#calcForm input").on("input", updateResults);
 
     // เรียกตอนโหลดครั้งแรก
     $(document).ready(updateResults);
   </script>
 </body>
+
 </html>
