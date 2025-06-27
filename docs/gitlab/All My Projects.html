@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My GitLab Projects</title>
+    <style>
+        body { background: #181c25; color: #f5f5f5; font-family: Arial; }
+        .project { margin-bottom: 1em; background: #232a3b; border-radius: 8px; padding: 0.5em; }
+        a { color: #67c1f5; }
+    </style>
+</head>
+<body>
+    <h1>My GitLab Projects</h1>
+    <form onsubmit="listProjects(); return false;">
+        <label>Access Token: <input id="token" type="password" autofocus></label>
+        <button type="submit">List Projects</button>
+    </div>
+    <div id="projects"></div>
+
+    <script>
+    async function listProjects() {
+        const token = document.getElementById('token').value;
+        const projectsDiv = document.getElementById('projects');
+        projectsDiv.innerHTML = 'Loading...';
+
+        // Change this to your GitLab URL if you use a self-hosted GitLab
+        const GITLAB_URL = 'https://gitlab.aerothai.co.th';
+        const apiUrl = `${GITLAB_URL}/api/v4/projects?membership=true&simple=true&per_page=100`;
+
+        const resp = await fetch(apiUrl, {
+            headers: { 'PRIVATE-TOKEN': token }
+        });
+
+        if (!resp.ok) {
+            projectsDiv.innerHTML = 'Error: ' + resp.statusText;
+            return;
+        }
+
+        const projects = await resp.json();
+        projectsDiv.innerHTML = '';
+
+        if (!projects.length) {
+            projectsDiv.textContent = 'No projects found.';
+            return;
+        }
+
+        projects.forEach(project => {
+            const div = document.createElement('div');
+            div.className = 'project';
+            div.innerHTML = `<a href="${GITLAB_URL}/${project.path_with_namespace}" target="_blank">${project.name_with_namespace}</a>`;
+            projectsDiv.appendChild(div);
+        });
+    }
+    </script>
+</body>
+</html>

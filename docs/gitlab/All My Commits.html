@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My GitLab Projects & Commits</title>
+    <style>
+        body {
+            background: #181c25;
+            color: #f5f5f5;
+            font-family: Arial;
+        }
+
+        .project {
+            margin-bottom: 1em;
+            background: #232a3b;
+            border-radius: 8px;
+            padding: 0.5em;
+        }
+
+        .commits {
+            margin-left: 1.5em;
+            margin-top: 0.5em;
+        }
+
+        .commit {
+            border-bottom: 1px solid #333;
+            padding: 0.3em 0;
+        }
+
+        a {
+            color: #67c1f5;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>All My GitLab Project Commits (Last 3 Months)</h1>
+    <form onsubmit="listProjectsAndCommits(); return false;">
+        <label>Access Token: <input id="token" type="password" autofocus></label>
+        <label>Author Name starts with: <input id="author" placeholder="e.g. John" value="Nutthakarn"></label>
+        <button type="submit">List Projects & Commits</button>
+    </form>
+    <div id="projects"></div>
+
+    <script>
+        function formatDate(d) {
+            const pad = n => n.toString().padStart(2, '0');
+            return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        async function listProjectsAndCommits() {
+            const token = document.getElementById('token').value;
+            const authorPrefix = document.getElementById('author').value.trim();
+            const projectsDiv = document.getElementById('projects');
+            projectsDiv.innerHTML = '<div id="loading">Loading projects…</div>';
+
+            const GITLAB_URL = 'https://gitlab.aerothai.co.th';
+            const apiUrl = `${GITLAB_URL}/api/v4/projects?membership=true&simple=true&per_page=100`;
+
+            const resp = await fetch(apiUrl, {
+                headers: { 'PRIVATE-TOKEN': token }
+            });
+
+            if (!resp.ok) {
+                projectsDiv.innerHTML = 'Error: ' + resp.statusText;
+                return;
+            }
+
+            const projects = await resp.json();
+            if (!projects.length) {
+                projectsDiv.textContent = 'No projects found.';
+                return;
+            }
+
+            // Calculate first date of 3 months ago (e.g., if now is July, then April 1st)
+            const now = new Date();
+            const since = new Date(now.getFullYear(), now.getMonth() - 2, 1); // "-2" because current month counts as 1
+            const sinceStr = since.toISOString().slice(0, 19) + 'Z';
+
+            // We'll track if any commits were rendered at all:
+            let renderedCount = 0;
+            let loading = document.getElementById('loading');
+
+            for (const project of projects) {
+                // Don't block: let the next project start fetching immediately
+                fetchCommitsAllBranches(project, token, sinceStr, GITLAB_URL).then(allCommits => {
+                    const filteredCommits = authorPrefix
+                        ? allCommits.filter(commit =>
+                            commit.author_name &&
+                            commit.author_name.toLowerCase().startsWith(authorPrefix.toLowerCase())
+                        )
+                        : allCommits;
+
+                    // Group the filtered commits by month
+                    const byMonth = {};
+                    for (const commit of filteredCommits) {
+                        const d = new Date(commit.created_at);
+                        const month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                        if (!byMonth[month]) byMonth[month] = [];
+                        byMonth[month].push({ project, commit });
+                    }
+
+                    // For each month, append rows to the corresponding table
+                    Object.keys(byMonth).forEach(month => {
+                        // If table for month doesn't exist, create it
+                        let monthDiv = document.getElementById('month-' + month);
+                        if (!monthDiv) {
+                            // Insert in sorted order
+                            const allMonthDivs = Array.from(projectsDiv.querySelectorAll('.month-table'));
+                            // Find correct place to insert
+                            let insertBefore = null;
+                            for (const mDiv of allMonthDivs) {
+                                if (mDiv.dataset.month < month) {
+                                    insertBefore = mDiv;
+                                    break;
+                                }
+                            }
+                            monthDiv = document.createElement('div');
+                            monthDiv.className = 'month-table';
+                            monthDiv.dataset.month = month;
+                            monthDiv.id = 'month-' + month;
+                            monthDiv.innerHTML = `
+                        <h2>${month}</h2>
+                        <table style="width:100%;border-collapse:collapse;margin-bottom:2em;">
+                            <thead>
+                                <tr style="background:#232a3b;">
+                                    <th style="padding:6px;border:1px solid #333;">Project</th>
+                                    <th style="padding:6px;border:1px solid #333;">Commit Message &amp; Time</th>
+                                    <th style="padding:6px;border:1px solid #333;">Author</th>
+                                    <th style="padding:6px;border:1px solid #333;">Branches</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    `;
+                            if (insertBefore) {
+                                projectsDiv.insertBefore(monthDiv, insertBefore);
+                            } else {
+                                projectsDiv.appendChild(monthDiv);
+                            }
+                        }
+                        const tbody = monthDiv.querySelector('tbody');
+                        // Group the rows for this project for merging
+                        const rows = [];
+                        const commits = byMonth[month].filter(row => row.project.id === project.id)
+                            .sort((a, b) => new Date(a.commit.created_at) - new Date(b.commit.created_at));
+                        commits.forEach((row, i) => {
+                            rows.push({
+                                project: row.project,
+                                commit: row.commit,
+                                projectRowSpan: i === 0 ? commits.length : 0,
+                                showProjectCell: i === 0
+                            });
+                        });
+                        // Render rows with merged project cell
+                        rows.forEach(row => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                        ${row.showProjectCell ? `
+                            <td style="padding:6px;border:1px solid #333;" rowspan="${row.projectRowSpan}">
+                                <a href="${GITLAB_URL}/${row.project.path_with_namespace}" target="_blank">${row.project.name_with_namespace}</a>
+                            </td>
+                        ` : ''}
+                        <td style="padding:6px;border:1px solid #333;">
+                            <a href="${GITLAB_URL}/${row.project.path_with_namespace}/-/commit/${row.commit.id}" target="_blank">${row.commit.title}</a>
+                            <div style="color:#aaa;font-size:0.95em;">
+                                ${formatDate(new Date(row.commit.created_at))}
+                            </div>
+                        </td>
+                        <td style="padding:6px;border:1px solid #333;">
+                            ${row.commit.author_name}
+                        </td>
+                        <td style="padding:6px;border:1px solid #333;">
+                            ${row.commit.branch.join(', ')}
+                        </td>
+                    `;
+                            tbody.appendChild(tr);
+                        });
+                        renderedCount += rows.length;
+                    });
+
+                    // When all projects finished, remove loading message
+                    if (++renderedCount >= projects.length) {
+                        if (loading) loading.remove();
+                    }
+                });
+            }
+        }
+
+        async function fetchCommitsAllBranches(project, token, sinceStr, GITLAB_URL) {
+            const encodedPath = encodeURIComponent(project.path_with_namespace);
+            const branchesUrl = `${GITLAB_URL}/api/v4/projects/${encodedPath}/repository/branches`;
+            const branchResp = await fetch(branchesUrl, {
+                headers: { 'PRIVATE-TOKEN': token }
+            });
+
+            if (!branchResp.ok) {
+                return [];
+            }
+            const branches = await branchResp.json();
+            if (!branches.length) {
+                return [];
+            }
+
+            let allCommits = {};
+            await Promise.all(branches.map(async branch => {
+                const commitsUrl = `${GITLAB_URL}/api/v4/projects/${encodedPath}/repository/commits?ref_name=${encodeURIComponent(branch.name)}&since=${sinceStr}&per_page=100`;
+                const commitsResp = await fetch(commitsUrl, {
+                    headers: { 'PRIVATE-TOKEN': token }
+                });
+                if (!commitsResp.ok) return;
+                const commits = await commitsResp.json();
+                for (const commit of commits) {
+                    if (!allCommits[commit.id]) {
+                        allCommits[commit.id] = { ...commit, branch: [branch.name] };
+                    } else {
+                        allCommits[commit.id].branch.push(branch.name);
+                    }
+                }
+            }));
+
+            const commitList = Object.values(allCommits);
+            commitList.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            return commitList;
+        }
+    </script>
+</body>
+
+</html>
