@@ -127,7 +127,7 @@
 
         function loadValuesFromCookie() {
             // get all the inputs
-            const inputs = document.querySelectorAll('input');
+            const inputs = document.querySelectorAll('input[type=number]');
             inputs.forEach((input) => {
                 const val = getCookie(`${input.name}`);
                 if (val !== "") {
