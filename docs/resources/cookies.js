@@ -21,3 +21,7 @@ function getCookie(cname) {
   }
   return "";
 }
+
+if (typeof module !== "undefined") {
+  module.exports = { setCookie, getCookie };
+}
